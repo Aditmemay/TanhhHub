@@ -287,9 +287,124 @@ task.spawn(function()
                     SetStatus("Nhiệm vụ NPC ẩn mở Sea 2")
                     local p = CF:InvokeServer("DressrosaQuestProgress")
                     if type(p) == "table" then
-                        if p.KilledIceBoss then CF:InvokeServer("DressrosaQuestProgress","Detective") task.wait(0.4) CF:InvokeServer("TravelDressrosa") return
-                        elseif not p.TalkedDetective then Fly(Vector3.new(4849,5,719)) if (h.Position-Vector3.new(4849,5,719)).Magnitude<20 then CF:InvokeServer("DressrosaQuestProgress","Detective") end return
-                        elseif not p.UsedKey then Equip("Key") Fly(Vector3.new(1347,37,-1325)) return end
+                        if p.KilledIceBoss then
+                            CF:InvokeServer("DressrosaQuestProgress", "Detective")
+                            task.wait(0.4)
+                            CF:InvokeServer("TravelDressrosa")
+                            return
+                        elseif not p.TalkedDetective then
+                            Fly(Vector3.new(4849, 5, 719))
+                            if (h.Position - Vector3.new(4849, 5, 719)).Magnitude < 20 then
+                                CF:InvokeServer("DressrosaQuestProgress", "Detective")
+                            end
+                            return
+                        elseif not p.UsedKey then
+                            Equip("Key")
+                            Fly(Vector3.new(1347, 37, -1325))
+                            return
+                        end
+                    end
+                    for _, v in ipairs(workspace.Enemies:GetChildren()) do
+                        if v.Name == "Ice Admiral" and v:FindFirstChild("Humanoid") and v.Humanoid.Health > 0 then
+                            Fly(v.HumanoidRootPart.Position + Vector3.new(0, 16, 0))
+                            Hit("Ice Admiral", v.HumanoidRootPart, v.Humanoid)
+                            return
+                        end
+                    end
+                    Fly(Vector3.new(1347, 37, -1325))
+                    return
+                end
+
+                local list = QData[game.PlaceId] or QData[2753915549]
+                local q = list[1]
+                for _, v in ipairs(list) do
+                    if LP.Data.Level.Value >= v[1] then q = v end
+                end
+                local qp, mp = Vector3.new(q[5], q[6], q[7]), Vector3.new(q[8], q[9], q[10])
+
+                if q[3] == "FishmanQuest" and (h.Position - qp).Magnitude > 10000 then
+                    CF:InvokeServer("requestEntrance", Vector3.new(61163.85, 11.67, 1819.78))
+                    return
+                elseif q[6] > 5000 and h.Position.Y < 4000 and game.PlaceId == 2753915549 then
+                    CF:InvokeServer("requestEntrance", Vector3.new(-7894.61, 5547.14, -380.29))
+                    return
+                elseif q[6] > 30000 and h.Position.Y < 20000 and game.PlaceId == 4442272183 then
+                    CF:InvokeServer("requestEntrance", Vector3.new(923.21, 126.97, 32852.83))
+                    return
+                end
+
+                if not LP.PlayerGui.Main.Quest.Visible then
+                    SetStatus("Nhận Quest: " .. q[2])
+                    Fly(qp)
+                    if (h.Position - qp).Magnitude < 20 then
+                        CF:InvokeServer("StartQuest", q[3], q[4])
+                    end
+                else
+                    SetStatus("Farm: " .. q[2])
+                    for _, e in ipairs(workspace.Enemies:GetChildren()) do
+                        local u = e:FindFirstChild("Humanoid")
+                        if e.Name == q[2] and u and u.Health > 0 then
+                            Fly(e.HumanoidRootPart.Position + Vector3.new(0, 16, 0))
+                            Hit(q[2], e.HumanoidRootPart, u)
+                            return
+                        end
+                    end
+                    Fly(mp + Vector3.new(0, 22, 0))
+                end
+            end
+        end)
+    end
+end)
+
+--// GẮN TÍNH NĂNG VÀO MENU
+local wList, wIdx = {"Melee", "Sword", "Blox Fruit"}, 1
+AddBtn("Main / Farm", "⚔️ Vũ khí: Melee (Bấm để đổi)", true, function(b)
+    wIdx = (wIdx % #wList) + 1
+    getgenv().Cfg.Weapon = wList[wIdx]
+    b.Text = "   ⚔️ Vũ khí: " .. wList[wIdx] .. " (Bấm để đổi)"
+end)
+AddToggle("Main / Farm", "Auto Farm Level (1 → Max 3 Sea)", "Farm", false)
+AddToggle("Main / Farm", "Auto Farm Mastery (Xả Z,X,C,V)", "Mastery", false)
+AddToggle("Main / Farm", "Gom Quái (Bring Mob)", "Bring", true)
+AddToggle("Main / Farm", "Tự động bật Haki Vũ Trang", "Haki", true)
+
+AddToggle("Boss & Trái", "Auto Farm Boss (Tự săn Boss)", "Boss", false)
+AddToggle("Boss & Trái", "Auto Nhặt Trái Ác Quỷ Rơi", "Fruit", false)
+AddToggle("Boss & Trái", "Auto Nhặt Rương (Kiếm Beli)", "Chest", false)
+AddBtn("Boss & Trái", "🍎 Mua Trái Ác Quỷ Ngẫu Nhiên", true, function()
+    CF:InvokeServer("Cousin", "Buy")
+    SetStatus("Đã mua Random Fruit")
+end)
+
+for _, s in ipairs({{"🌍 Về Sea 1 (Old World)","TravelMain"},{"🌍 Qua Sea 2 (Dressrosa)","TravelDressrosa"},{"🌍 Qua Sea 3 (Zou/Tiki)","TravelZou"}}) do
+    AddBtn("Dịch Chuyển", s[1], true, function() SetStatus(s[1]) CF:InvokeServer(s[2]) end)
+end
+for _, d in ipairs({
+    {"🏝️ Đảo Khởi Đầu (Sea 1)",1059,16,1549},{"🌴 Đảo Khỉ (Jungle)",-1598,36,153},{"❄️ Đảo Tuyết (Frozen)",1389,88,-1298},
+    {"⚓ Pháo Đài Hải Quân",-5039,28,4324},{"☁️ Đảo Trời (Skylands)",-4839,717,-2619},{"🔒 Nhà Tù (Prison)",5308,1,475},
+    {"🏰 Quán Cafe (Sea 2)",-380,77,255},{"🐢 Dinh Thự (Sea 3)",-12550,337,-7425}
+}) do
+    AddBtn("Dịch Chuyển", d[1], false, function() SetStatus("Bay: "..d[1]) Fly(Vector3.new(d[2],d[3],d[4])) end)
+end
+
+local sList, sIdx = {"Melee", "Defense", "Sword", "Blox Fruit"}, 1
+AddBtn("Chỉ Số & Misc", "📈 Điểm ưu tiên: Melee (Bấm đổi)", true, function(b)
+    sIdx = (sIdx % #sList) + 1
+    getgenv().Cfg.StatName = sList[sIdx]
+    b.Text = "   📈 Điểm ưu tiên: " .. sList[sIdx] .. " (Bấm đổi)"
+end)
+AddToggle("Chỉ Số & Misc", "Tự động cộng điểm (Auto Stats)", "AutoStat", false)
+AddToggle("Chỉ Số & Misc", "Đi trên mặt nước (Walk on Water)", "WalkWater", false)
+AddBtn("Chỉ Số & Misc", "⚡ Tăng tốc độ chạy (Speed x4)", false, function()
+    getgenv().Cfg.Speed = (getgenv().Cfg.Speed == 16) and 70 or 16
+    SetStatus("Tốc độ: " .. getgenv().Cfg.Speed)
+end)
+AddBtn("Chỉ Số & Misc", "🎁 Nhập toàn bộ Code x2 EXP", true, function()
+    for _, c in ipairs({"SUB2GAMERROBOT_EXP1","Sub2Fer999","Enyu_is_Pro","Magicbus","JCWK","Starcodeheo","Bluxxy","SUB2NOOBMASTER123","Sub2Daigrock","Axiore","TantaiGaming","StrawHatMaine","Sub2OfficialNoobie","TheGreatAce","KittGaming"}) do
+        pcall(function() Rep.Remotes.Redeem:InvokeServer(c) end)
+    end
+    SetStatus("Đã nhập xong Code x2 EXP!")
+end)
                     end
                     for _, v in ipairs(workspace.Enemies:GetChildren()) do
                         if v.Name=="Ice Admiral" and v:FindFirstChild("Humanoid") and v.Humanoid.Health>0 then
