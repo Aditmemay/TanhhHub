@@ -1,0 +1,303 @@
+--// TANHH HUB | ALL-IN-ONE (SEA 1 -> SEA 3 + HIDDEN NPC + CHARCOAL UI)
+local P, TS, RS, Rep, VU, UIS, VIM = game:GetService("Players"), game:GetService("TweenService"), game:GetService("RunService"), game:GetService("ReplicatedStorage"), game:GetService("VirtualUser"), game:GetService("UserInputService"), game:GetService("VirtualInputManager")
+local LP, CF = P.LocalPlayer, Rep:WaitForChild("Remotes"):WaitForChild("CommF_")
+local ok, pGui = pcall(function() return (gethui and gethui()) or game:GetService("CoreGui") end)
+local Parent = (ok and pGui) or LP:WaitForChild("PlayerGui")
+if Parent:FindFirstChild("TanhhHub_AIO") then Parent.TanhhHub_AIO:Destroy() end
+
+getgenv().Cfg = {
+    Farm = false, Boss = false, Chest = false, Fruit = false, Mastery = false,
+    Haki = true, Bring = true, AutoStat = false, StatName = "Melee",
+    Weapon = "Melee", WalkWater = false, Speed = 16
+}
+
+-- Dữ liệu nhiệm vụ đầy đủ cả 3 Sea (Lv.1 -> Max)
+local QData = {
+    [2753915549] = { -- SEA 1
+        {1,"Bandit","BanditQuest1",1,1059,16,1549,1145,17,1634},
+        {15,"Monkey","JungleQuest",1,-1598,36,153,-1448,67,11},
+        {30,"Gorilla","JungleQuest",2,-1598,36,153,-1129,40,-525},
+        {40,"Brute","BuggyQuest1",2,-1141,5,3831,-1140,15,4322},
+        {60,"Desert Bandit","DesertQuest",1,894,6,4392,924,7,4481},
+        {75,"Desert Officer","DesertQuest",2,894,6,4392,1608,9,4371},
+        {90,"Snow Bandit","SnowQuest",1,1389,88,-1298,1354,87,-1393},
+        {105,"Snowman","SnowQuest",2,1389,88,-1298,1201,144,-1550},
+        {120,"Chief Petty Officer","MarineQuest2",1,-5039,28,4324,-4881,23,4273},
+        {150,"Sky Bandit","SkyQuest",1,-4839,717,-2619,-4953,295,-2899},
+        {175,"Dark Master","SkyQuest",2,-4839,717,-2619,-5259,391,-2229},
+        {190,"Prisoner","PrisonerQuest",1,5308,1,475,5098,0,474},
+        {210,"Dangerous Prisoner","PrisonerQuest",2,5308,1,475,5654,15,866},
+        {250,"Toga Warrior","ColosseumQuest",1,-1580,7,-2986,-1820,51,-2740},
+        {275,"Gladiator","ColosseumQuest",2,-1580,7,-2986,-1292,56,-3339},
+        {300,"Military Soldier","MagmaQuest",1,-5313,12,8515,-5411,11,8454},
+        {325,"Military Spy","MagmaQuest",2,-5313,12,8515,-5802,86,8828},
+        {375,"Fishman Warrior","FishmanQuest",1,61122,18,1569,60878,18,1543},
+        {400,"Fishman Commando","FishmanQuest",2,61122,18,1569,61922,18,1493},
+        {450,"God's Guard","SkyExp1Quest",1,-4721,843,-1949,-4710,845,-1927},
+        {475,"Shanda","SkyExp1Quest",2,-7859,5544,-381,-7678,5566,-497},
+        {525,"Royal Squad","SkyExp2Quest",1,-7906,5634,-1411,-7624,5658,-1462},
+        {550,"Royal Soldier","SkyExp2Quest",2,-7906,5634,-1411,-7836,5645,-1790},
+        {625,"Galley Pirate","FountainQuest",1,5259,37,4050,5515,40,3938},
+        {650,"Galley Captain","FountainQuest",2,5259,37,4050,5441,42,4950}
+    },
+    [4442272183] = { -- SEA 2
+        {700,"Raider","Area1Quest",1,-429,71,1836,-728,52,2345},
+        {725,"Mercenary","Area1Quest",2,-429,71,1836,-1004,80,1424},
+        {775,"Swan Pirate","Area2Quest",1,638,73,918,1068,137,1322},
+        {800,"Factory Staff","Area2Quest",2,638,73,918,73,81,-27},
+        {875,"Marine Lieutenant","MarineQuest3",1,-2440,73,-3216,-2821,75,-3070},
+        {900,"Marine Captain","MarineQuest3",2,-2440,73,-3216,-1861,80,-3254},
+        {950,"Zombie","ZombieQuest",1,-5497,47,-795,-5657,78,-928},
+        {975,"Vampire","ZombieQuest",2,-5497,47,-795,-6037,32,-1340},
+        {1000,"Snow Trooper","SnowMountainQuest",1,609,401,-5372,549,427,-5563},
+        {1050,"Winter Warrior","SnowMountainQuest",2,609,401,-5372,1142,475,-5199},
+        {1100,"Lab Subordinate","IceSideQuest",1,-6064,15,-4902,-5707,15,-4513},
+        {1125,"Horned Warrior","IceSideQuest",2,-6064,15,-4902,-6341,15,-5723},
+        {1175,"Magma Ninja","FireSideQuest",1,-5428,15,-5299,-5449,76,-5808},
+        {1200,"Lava Pirate","FireSideQuest",2,-5428,15,-5299,-5213,49,-4701},
+        {1250,"Ship Deckhand","ShipQuest1",1,1037,125,32911,1212,150,33059},
+        {1275,"Ship Engineer","ShipQuest1",2,1037,125,32911,919,43,32779},
+        {1300,"Ship Steward","ShipQuest2",1,968,125,33244,919,129,33436},
+        {1325,"Ship Officer","ShipQuest2",2,968,125,33244,1036,181,33315},
+        {1350,"Arctic Warrior","FrostQuest",1,5667,26,-6486,5966,62,-6179},
+        {1375,"Snow Lurker","FrostQuest",2,5667,26,-6486,5407,69,-6880},
+        {1425,"Sea Soldier","ForgottenQuest",1,-3054,235,-10142,-3028,64,-9775},
+        {1450,"Water Fighter","ForgottenQuest",2,-3054,235,-10142,-3352,285,-10534}
+    },
+    [7449423635] = { -- SEA 3
+        {1500,"Pirate Millionaire","PiratePortQuest",1,-290,42,5581,-245,47,5584},
+        {1525,"Pistol Billionaire","PiratePortQuest",2,-290,42,5581,-187,86,6013},
+        {1575,"Dragon Crew Warrior","AmazonQuest",1,5832,51,-1101,6141,51,-1341},
+        {1600,"Dragon Crew Archer","AmazonQuest",2,5832,51,-1101,6616,441,446},
+        {1625,"Female Islander","AmazonQuest2",1,5446,601,749,4685,735,815},
+        {1650,"Giant Islander","AmazonQuest2",2,5446,601,749,4729,590,-36},
+        {1700,"Marine Commodore","MarineTreeIsland",1,2180,27,-6741,2286,73,-7159},
+        {1725,"Marine Rear Admiral","MarineTreeIsland",2,2180,27,-6741,3656,160,-7001},
+        {1775,"Fishman Raider","DeepForestIsland3",1,-10581,330,-8761,-10407,331,-8368},
+        {1800,"Fishman Captain","DeepForestIsland3",2,-10581,330,-8761,-10994,332,-8940},
+        {1825,"Forest Pirate","DeepForestIsland",1,-13234,331,-7625,-13274,332,-7769},
+        {1850,"Mythological Pirate","DeepForestIsland",2,-13234,331,-7625,-13680,501,-6991},
+        {1900,"Jungle Pirate","DeepForestIsland2",1,-12680,388,-9902,-12256,331,-10485},
+        {1925,"Musketeer Pirate","DeepForestIsland2",2,-12680,388,-9902,-13457,391,-9859},
+        {1975,"Reborn Skeleton","HauntedQuest1",1,-9479,141,5566,-8763,165,6159},
+        {2000,"Living Zombie","HauntedQuest1",2,-9479,141,5566,-10144,138,5838},
+        {2025,"Demonic Soul","HauntedQuest2",1,-9516,172,6078,-9505,172,6158},
+        {2050,"Posessed Mummy","HauntedQuest2",2,-9516,172,6078,-9582,6,6205},
+        {2075,"Peanut Scout","NutsIslandQuest",1,-2104,38,-10194,-2143,47,-10029},
+        {2100,"Peanut President","NutsIslandQuest",2,-2104,38,-10194,-1859,38,-10422},
+        {2125,"Ice Cream Chef","IceCreamIslandQuest",1,-820,65,-10965,-872,65,-10919},
+        {2150,"Ice Cream Commander","IceCreamIslandQuest",2,-820,65,-10965,-558,112,-11290},
+        {2200,"Cookie Crafter","CakeQuest1",1,-2021,37,-12028,-2374,37,-12125},
+        {2225,"Cake Guard","CakeQuest1",2,-2021,37,-12028,-1598,43,-12244},
+        {2250,"Baking Staff","CakeQuest2",1,-1927,37,-12842,-1887,77,-12998},
+        {2275,"Head Baker","CakeQuest2",2,-1927,37,-12842,-2216,82,-12860},
+        {2300,"Cocoa Warrior","ChocQuest1",1,233,29,-12201,-21,80,-12352},
+        {2325,"Chocolate Bar Battler","ChocQuest1",2,233,29,-12201,582,77,-12463},
+        {2350,"Sweet Thief","ChocQuest2",1,150,30,-12774,165,76,-12600},
+        {2375,"Candy Rebel","ChocQuest2",2,150,30,-12774,134,77,-12876},
+        {2400,"Candy Pirate","CandyQuest1",1,-1150,20,-14446,-1310,26,-14562},
+        {2425,"Snow Demon","CandyQuest1",2,-1150,20,-14446,-880,71,-14538},
+        {2450,"Isle Outlaw","TikiQuest1",1,-16547,61,-173,-16442,116,-264},
+        {2475,"Island Boy","TikiQuest1",2,-16547,61,-173,-16901,84,-192},
+        {2500,"Sun-kissed Warrior","TikiQuest2",1,-16539,55,1051,-16349,92,1123},
+        {2525,"Isle Champion","TikiQuest2",2,-16539,55,1051,-16347,92,1122}
+    }
+}
+
+-- Giao diện Xám Than (Matte Charcoal UI)
+local C = {
+    Main = Color3.fromRGB(24,25,28), Side = Color3.fromRGB(19,20,23), Card = Color3.fromRGB(34,36,41),
+    GoldBg = Color3.fromRGB(38,35,28), TabOn = Color3.fromRGB(40,43,50), Line = Color3.fromRGB(48,51,59),
+    Gold = Color3.fromRGB(245,184,46), Txt = Color3.fromRGB(243,244,246), Mute = Color3.fromRGB(156,163,175)
+}
+
+local function New(cls, p, r, stroke)
+    local o = Instance.new(cls)
+    for k, v in pairs(p) do o[k] = v end
+    if r then Instance.new("UICorner", o).CornerRadius = UDim.new(0, r) end
+    if stroke then local s = Instance.new("UIStroke", o) s.Color, s.Thickness, s.ApplyStrokeMode = stroke, 1, Enum.ApplyStrokeMode.Border end
+    return o
+end
+
+local function Drag(btn, target, onTap)
+    local drag, start, pos, moved
+    btn.InputBegan:Connect(function(i)
+        if i.UserInputType == Enum.UserInputType.MouseButton1 or i.UserInputType == Enum.UserInputType.Touch then
+            drag, moved, start, pos = true, false, i.Position, target.Position
+        end
+    end)
+    UIS.InputChanged:Connect(function(i)
+        if drag and (i.UserInputType == Enum.UserInputType.MouseMovement or i.UserInputType == Enum.UserInputType.Touch) then
+            local d = i.Position - start
+            if d.Magnitude > 6 then moved = true end
+            if moved then target.Position = UDim2.new(pos.X.Scale, pos.X.Offset + d.X, pos.Y.Scale, pos.Y.Offset + d.Y) end
+        end
+    end)
+    UIS.InputEnded:Connect(function(i)
+        if drag and (i.UserInputType == Enum.UserInputType.MouseButton1 or i.UserInputType == Enum.UserInputType.Touch) then
+            drag = false if not moved and onTap then onTap() end
+        end
+    end)
+end
+
+local Gui = New("ScreenGui", {Name = "TanhhHub_AIO", ResetOnSpawn = false, Parent = Parent})
+local Float = New("TextButton", {Size = UDim2.new(0,118,0,32), Position = UDim2.new(0,16,0.34,0), BackgroundColor3 = C.Main, Text = "⚡ TANHH HUB", Font = Enum.Font.GothamBold, TextSize = 12, TextColor3 = C.Gold, Parent = Gui}, 8, C.Line)
+local Win = New("Frame", {Size = UDim2.new(0,468,0,280), Position = UDim2.new(0.5,-234,0.5,-140), BackgroundColor3 = C.Main, ClipsDescendants = true, Parent = Gui}, 10, C.Line)
+
+local Top = New("Frame", {Size = UDim2.new(1,0,0,36), BackgroundColor3 = C.Side, BorderSizePixel = 0, Parent = Win})
+New("TextLabel", {Size = UDim2.new(0,210,1,0), Position = UDim2.new(0,12,0,0), BackgroundTransparency = 1, RichText = true, Text = '<font color="#F5B82E">⚡ TANHH HUB</font> <font color="#6B7280">|</font> NIGHT', Font = Enum.Font.GothamBold, TextSize = 12.5, TextColor3 = C.Txt, TextXAlignment = Enum.TextXAlignment.Left, Parent = Top})
+local Status = New("TextLabel", {Size = UDim2.new(0,175,0,22), Position = UDim2.new(1,-210,0.5,-11), BackgroundColor3 = C.Card, RichText = true, Text = '  <font color="#F5B82E">●</font> Sẵn sàng (Lv.'..LP.Data.Level.Value..')', Font = Enum.Font.GothamMedium, TextSize = 11, TextColor3 = C.Txt, TextXAlignment = Enum.TextXAlignment.Left, Parent = Top}, 6, C.Line)
+local Min = New("TextButton", {Size = UDim2.new(0,24,0,24), Position = UDim2.new(1,-30,0.5,-12), BackgroundColor3 = C.Card, Text = "—", Font = Enum.Font.GothamBold, TextSize = 11, TextColor3 = C.Mute, Parent = Top}, 6)
+Drag(Top, Win) Drag(Float, Float, function() Win.Visible = not Win.Visible end) Min.MouseButton1Click:Connect(function() Win.Visible = false end)
+
+local Side = New("Frame", {Size = UDim2.new(0,126,1,-36), Position = UDim2.new(0,0,0,36), BackgroundColor3 = C.Side, BorderSizePixel = 0, Parent = Win})
+New("UIListLayout", {Padding = UDim.new(0,5), Parent = Side}) New("UIPadding", {PaddingTop = UDim.new(0,8), PaddingLeft = UDim.new(0,8), PaddingRight = UDim.new(0,8), Parent = Side})
+local Body = New("Frame", {Size = UDim2.new(1,-126,1,-36), Position = UDim2.new(0,126,0,36), BackgroundTransparency = 1, Parent = Win})
+local Tabs, Pages = {}, {}
+
+for _, info in ipairs({{"Main / Farm","🏠"},{"Boss & Trái","⚔️"},{"Dịch Chuyển","🧭"},{"Chỉ Số & Misc","📊"}}) do
+    local name, icon = info[1], info[2]
+    local on = (name == "Main / Farm")
+    local b = New("TextButton", {Size = UDim2.new(1,0,0,32), BackgroundColor3 = C.TabOn, BackgroundTransparency = on and 0 or 1, Text = "  "..icon.."  "..name, Font = on and Enum.Font.GothamBold or Enum.Font.GothamMedium, TextSize = 11.5, TextColor3 = on and C.Txt or C.Mute, TextXAlignment = Enum.TextXAlignment.Left, Parent = Side}, 6)
+    local p = New("ScrollingFrame", {Size = UDim2.new(1,0,1,0), BackgroundTransparency = 1, BorderSizePixel = 0, ScrollBarThickness = 2, AutomaticCanvasSize = Enum.AutomaticSize.Y, CanvasSize = UDim2.new(), Visible = on, Parent = Body})
+    New("UIListLayout", {Padding = UDim.new(0,6), Parent = p}) New("UIPadding", {PaddingTop = UDim.new(0,8), PaddingBottom = UDim.new(0,8), PaddingLeft = UDim.new(0,10), PaddingRight = UDim.new(0,10), Parent = p})
+    Pages[name] = p table.insert(Tabs, {b = b, p = p})
+    b.MouseButton1Click:Connect(function()
+        for _, t in ipairs(Tabs) do
+            local act = (t.b == b) t.p.Visible, t.b.BackgroundTransparency = act, act and 0 or 1
+            t.b.TextColor3, t.b.Font = act and C.Txt or C.Mute, act and Enum.Font.GothamBold or Enum.Font.GothamMedium
+        end
+    end)
+end
+
+local function SetStatus(txt) Status.Text = '  <font color="#F5B82E">●</font> '..txt end
+local function AddBtn(tab, text, gold, cb)
+    local b = New("TextButton", {Size = UDim2.new(1,0,0,32), BackgroundColor3 = gold and C.GoldBg or C.Card, Text = "   "..text, Font = gold and Enum.Font.GothamBold or Enum.Font.GothamMedium, TextSize = 11.5, TextColor3 = gold and C.Gold or C.Txt, TextXAlignment = Enum.TextXAlignment.Left, Parent = Pages[tab]}, 7, gold and C.Gold or C.Line)
+    b.MouseButton1Click:Connect(function() if cb then cb(b) end end)
+end
+local function AddToggle(tab, text, key, default)
+    getgenv().Cfg[key] = default or false
+    local b = New("TextButton", {Size = UDim2.new(1,0,0,32), BackgroundColor3 = C.Card, Text = "   "..text..(getgenv().Cfg[key] and "  [BẬT]" or "  [TẮT]"), Font = Enum.Font.GothamMedium, TextSize = 11.5, TextColor3 = getgenv().Cfg[key] and C.Gold or C.Txt, TextXAlignment = Enum.TextXAlignment.Left, Parent = Pages[tab]}, 7, C.Line)
+    b.MouseButton1Click:Connect(function()
+        local st = not getgenv().Cfg[key] getgenv().Cfg[key] = st
+        b.Text = "   "..text..(st and "  [BẬT]" or "  [TẮT]") b.TextColor3 = st and C.Gold or C.Txt
+        SetStatus(text..": "..(st and "Bật" or "Tắt"))
+    end)
+end
+
+--// HỆ THỐNG BAY, GOM QUÁI & ĐÁNH NHANH + MASTERY
+local tw
+local function Fly(pos)
+    local h = LP.Character and LP.Character:FindFirstChild("HumanoidRootPart")
+    if not h then return end
+    local d = (h.Position - pos).Magnitude
+    if d < 30 then h.CFrame = CFrame.new(pos) return end
+    if tw then tw:Cancel() end
+    tw = TS:Create(h, TweenInfo.new(d/300, Enum.EasingStyle.Linear), {CFrame = CFrame.new(pos)}) tw:Play()
+end
+
+local function Equip(w)
+    local c = LP.Character if not c then return end
+    if getgenv().Cfg.Haki and not c:FindFirstChild("HasBuso") then pcall(function() CF:InvokeServer("Buso") end) end
+    for _, t in ipairs(c:GetChildren()) do
+        if t:IsA("Tool") and (t.Name == w or t.ToolTip == w or t.Name == "Combat") then t:Activate() return end
+    end
+    for _, t in ipairs(LP.Backpack:GetChildren()) do
+        if t:IsA("Tool") and (t.Name == w or t.ToolTip == w or t.Name == "Combat") then c.Humanoid:EquipTool(t) break end
+    end
+end
+
+local function Hit(mon, mH, mHum)
+    local lock = mH.Position
+    if getgenv().Cfg.Bring then
+        for _, e in ipairs(workspace.Enemies:GetChildren()) do
+            local h, u = e:FindFirstChild("HumanoidRootPart"), e:FindFirstChild("Humanoid")
+            if e.Name == mon and h and u and u.Health > 0 and (h.Position - lock).Magnitude <= 260 then
+                h.CFrame, h.Velocity, h.CanCollide, u.WalkSpeed = CFrame.new(lock), Vector3.zero, false, 0
+            end
+        end
+    end
+    if getgenv().Cfg.Mastery and mHum and (mHum.Health / mHum.MaxHealth) <= 0.35 then
+        for _, t in ipairs(LP.Backpack:GetChildren()) do
+            if t:IsA("Tool") and (t.ToolTip == "Blox Fruit" or t.ToolTip == "Gun") then LP.Character.Humanoid:EquipTool(t) end
+        end
+        for _, k in ipairs({"Z","X","C","V"}) do
+            VIM:SendKeyEvent(true, k, false, game) task.wait(0.04) VIM:SendKeyEvent(false, k, false, game)
+        end
+    else
+        Equip(getgenv().Cfg.Weapon)
+        VU:CaptureController() VU:Button1Down(Vector2.new(500,500))
+        pcall(function() Rep.Modules.Net["RE/RegisterAttack"]:FireServer(0) Rep.Modules.Net["RE/RegisterHit"]:FireServer(mH,{}) end)
+    end
+end
+
+LP.Idled:Connect(function() VU:CaptureController() VU:ClickButton2(Vector2.new()) end)
+RS.Stepped:Connect(function()
+    local c = LP.Character
+    local h, hum = c and c:FindFirstChild("HumanoidRootPart"), c and c:FindFirstChild("Humanoid")
+    if h and hum then
+        if getgenv().Cfg.Farm or getgenv().Cfg.Boss or getgenv().Cfg.Chest or getgenv().Cfg.Fruit then
+            hum:ChangeState(11) h.Velocity = Vector3.zero
+            for _, p in ipairs(c:GetDescendants()) do if p:IsA("BasePart") then p.CanCollide = false end end
+        elseif getgenv().Cfg.Speed > 16 then hum.WalkSpeed = getgenv().Cfg.Speed end
+        if workspace:FindFirstChild("Map") and workspace.Map:FindFirstChild("WaterBase-Plane") then
+            workspace.Map["WaterBase-Plane"].CanCollide = getgenv().Cfg.WalkWater
+        end
+    end
+end)
+
+task.spawn(function()
+    while task.wait(0.12) do
+        pcall(function()
+            if getgenv().Cfg.AutoStat and LP.Data.Points.Value > 0 then CF:InvokeServer("AddPoint", getgenv().Cfg.StatName, 3) end
+            local h = LP.Character.HumanoidRootPart
+
+            -- 1. Nhặt Trái Ác Quỷ rơi trên bản đồ
+            if getgenv().Cfg.Fruit then
+                for _, v in ipairs(workspace:GetChildren()) do
+                    if v:IsA("Tool") and v.Name:find("Fruit") and v:FindFirstChild("Handle") then
+                        SetStatus("Nhặt trái: "..v.Name) Fly(v.Handle.Position) return
+                    end
+                end
+            end
+
+            -- 2. Nhặt Rương
+            if getgenv().Cfg.Chest then
+                for _, v in ipairs(workspace:GetDescendants()) do
+                    if v:IsA("BasePart") and v.Name:find("Chest") and v:FindFirstChild("TouchInterest") then
+                        SetStatus("Đang nhặt rương...") Fly(v.Position) return
+                    end
+                end
+            end
+
+            -- 3. Săn Boss
+            if getgenv().Cfg.Boss then
+                for _, e in ipairs(workspace.Enemies:GetChildren()) do
+                    local u = e:FindFirstChild("Humanoid")
+                    if u and u.Health > 0 and (e.Name:find("Boss") or u.MaxHealth >= 3500) then
+                        SetStatus("Boss: "..e.Name)
+                        Fly(e.HumanoidRootPart.Position + Vector3.new(0,18,0)) Hit(e.Name, e.HumanoidRootPart, u) return
+                    end
+                end
+            end
+
+            -- 4. Farm Level (Sea 1 -> Nhiệm vụ NPC ẩn -> Sea 2 -> Sea 3)
+            if getgenv().Cfg.Farm then
+                if game.PlaceId == 2753915549 and LP.Data.Level.Value >= 700 then
+                    SetStatus("Nhiệm vụ NPC ẩn mở Sea 2")
+                    local p = CF:InvokeServer("DressrosaQuestProgress")
+                    if type(p) == "table" then
+                        if p.KilledIceBoss then CF:InvokeServer("DressrosaQuestProgress","Detective") task.wait(0.4) CF:InvokeServer("TravelDressrosa") return
+                        elseif not p.TalkedDetective then Fly(Vector3.new(4849,5,719)) if (h.Position-Vector3.new(4849,5,719)).Magnitude<20 then CF:InvokeServer("DressrosaQuestProgress","Detective") end return
+                        elseif not p.UsedKey then Equip("Key") Fly(Vector3.new(1347,37,-1325)) return end
+                    end
+                    for _, v in ipairs(workspace.Enemies:GetChildren()) do
+                        if v.Name=="Ice Admiral" and v:FindFirstChild("Humanoid") and v.Humanoid.Health>0 then
+                            Fly(v.HumanoidRootPart.Position+Vector3.new(0,16,0)) Hit("Ice Admiral",v.HumanoidRootPart,v.Humanoid) return
+                        end
+                    end
+                    Fly(Vector3.new(1347,37,-1325)) return
+                end
+
+                local list = QData[game.PlaceId] or QData[2753915549]
+    
